@@ -7,6 +7,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import java.sql.SQLException;
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -67,8 +69,9 @@ class UserDaoTest {
         userDao.add(user1);
         userDao.add(user2);
 
-        userDao.getAll();
-        assertThat(2).isEqualTo(userDao.getAll().size());
+        List<User> users = userDao.getAll();
+
+        assertThat(2).isEqualTo(users.size());
     }
 
 }
