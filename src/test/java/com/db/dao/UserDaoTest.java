@@ -6,9 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-
 import java.sql.SQLException;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -20,7 +18,7 @@ class UserDaoTest {
     AnnotationConfigApplicationContext ac = new AnnotationConfigApplicationContext(UserDaoFactory.class);
 
     @BeforeEach
-    void setUp() throws SQLException, ClassNotFoundException {
+    void setUp(){
         userDao = ac.getBean("awsUserDao", UserDao.class);
         user1 = new User("16", "홍길동", "1234");
         user2 = new User("17", "홍길수", "12346");
@@ -33,7 +31,7 @@ class UserDaoTest {
 
     @Test
     @DisplayName("add 테스트")
-    void add_Test() throws SQLException, ClassNotFoundException {
+    void add_Test() throws SQLException {
         userDao.add(user1);
         userDao.add(user2);
 
@@ -46,7 +44,7 @@ class UserDaoTest {
 
     @Test
     @DisplayName("delete 테스트")
-    void delete_test() throws SQLException, ClassNotFoundException {
+    void delete_test() {
         userDao.deleteAll();
         assertThat(0).isEqualTo(userDao.getCount());
     }

@@ -1,15 +1,11 @@
 package com.db.dao;
 
-import com.db.context.JdbcContext;
 import com.db.domain.User;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-
 import javax.sql.DataSource;
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class UserDao {
     private JdbcTemplate jdbcTemplate;
