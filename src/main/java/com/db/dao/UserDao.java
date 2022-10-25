@@ -35,6 +35,7 @@ public class UserDao {
 
     public User findById(String id) throws ClassNotFoundException, SQLException {
         Connection c = null;
+        User user = null;
 
         c = connectionMaker.getConnection();
 
@@ -43,8 +44,9 @@ public class UserDao {
         ps.setString(1, id);
 
         ResultSet rs = ps.executeQuery();
-        rs.next();
-        User user = new User(rs.getString("id"), rs.getString("name"), rs.getString("password"));
+        if(rs.next()){
+           user = new User(rs.getString("id"), rs.getString("name"), rs.getString("password"));
+        }
 
         rs.close();
         ps.close();
@@ -90,10 +92,6 @@ public class UserDao {
         pstmt = c.prepareStatement("select count(*) from users");
         rs = pstmt.executeQuery();
         rs.next();
-
-        c.close();
-        pstmt.close();
-        rs.close();
 
         return rs.getInt(1);
     }
