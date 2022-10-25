@@ -10,6 +10,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 
 import java.sql.SQLException;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 class UserDaoTest {
@@ -18,11 +19,12 @@ class UserDaoTest {
     private User user2;
 
     AnnotationConfigApplicationContext ac = new AnnotationConfigApplicationContext(UserDaoFactory.class);
+
     @BeforeEach
-    void setUp(){
+    void setUp() throws SQLException, ClassNotFoundException {
         userDao = ac.getBean("awsUserDao", UserDao.class);
-        user1 = new User("3", "홍길동", "1234");
-        user2 = new User("4", "홍길수", "12346");
+        user1 = new User("9", "홍길동", "1234");
+        user2 = new User("10", "홍길수", "12346");
     }
 
     @Test
@@ -37,5 +39,25 @@ class UserDaoTest {
         assertEquals(user1.getName(), findUser1.getName());
         assertEquals(user2.getName(), findUser2.getName());
     }
+
+    @Test
+    @DisplayName("delete 테스트")
+    void delete_test() throws SQLException, ClassNotFoundException {
+        userDao.deleteAll();
+        assertThat(0).isEqualTo(userDao.getCount());
+    }
+
+    @Test
+    @DisplayName("getCount 테스트")
+    void getCount_test() throws SQLException, ClassNotFoundException {
+        userDao.deleteAll();
+
+        userDao.add(user1);
+        assertThat(1).isEqualTo(userDao.getCount());
+
+        userDao.add(user2);
+        assertThat(2).isEqualTo(userDao.getCount());
+    }
+
 
 }
