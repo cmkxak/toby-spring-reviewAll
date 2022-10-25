@@ -2,6 +2,8 @@ package com.db.dao;
 
 import com.db.context.JdbcContext;
 import com.db.domain.User;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -10,26 +12,38 @@ import java.util.List;
 import java.util.Map;
 
 public class UserDao {
-    private JdbcContext jdbcContext;
+    private JdbcTemplate jdbcTemplate;
 
-    public UserDao(DataSource datasource) {
-        this.jdbcContext = new JdbcContext(datasource);
+    private RowMapper<User> rowMapper = new RowMapper<User>() {
+        @Override
+        public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+            User user = new User(rs.getString("id"), rs.getString("name"), rs.getString("password"));
+            return user;
+        }
+    };
+
+    public UserDao(DataSource dataSource) {
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
     public void add(User user) throws SQLException {
-        this.jdbcContext.workWithStatementStrategy(new StatementStrategy() {
-            @Override
-            public PreparedStatement makeStatement(Connection c) throws SQLException {
-                PreparedStatement ps = c.prepareStatement("INSERT INTO users values (?,?,?)");
-                ps.setString(1, user.getId());
-                ps.setString(2, user.getName());
-                ps.setString(3, user.getPassword());
-                return ps;
-            }
-        });
+        jdbcTemplate.update("INSERT INTO users values (?,?,?)", user.getId(), user.getName(), user.getPassword());
     }
 
     public void deleteAll(){
-        this.jdbcContext.executeSql("delete from users");
+        jdbcTemplate.update("delete from users");
+    }
+
+    public int getCount(){
+        return jdbcTemplate.queryForObject("select count(*) from users", Integer.class);
+    }
+
+    public User findById(String id){
+        String sql = "select * from users where id = ?";
+        return jdbcTemplate.queryForObject(sql, rowMapper, id);
+    }
+    public List<User> getAll(){
+        String sql = "select * from users order by id";
+        return jdbcTemplate.query(sql, rowMapper);
     }
 }
