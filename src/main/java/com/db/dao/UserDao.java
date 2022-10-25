@@ -17,42 +17,78 @@ public class UserDao {
 
     public void add(User user) throws ClassNotFoundException, SQLException {
         Connection c = null;
+        PreparedStatement ps = null;
 
-        c = connectionMaker.getConnection();
+        try {
+            c = connectionMaker.getConnection();
+            ps = c.prepareStatement(
+                    "insert into users(id, name, password) values(?, ?, ?)");
+            ps.setString(1, user.getId());
+            ps.setString(2, user.getName());
+            ps.setString(3, user.getPassword());
 
-        PreparedStatement ps = c.prepareStatement(
-                "insert into users(id, name, password) values(?, ?, ?)");
-        ps.setString(1, user.getId());
-        ps.setString(2, user.getName());
-        ps.setString(3, user.getPassword());
-
-        ps.executeUpdate();
-
-        ps.close();
-        c.close();
-
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                }
+            }
+            if (c != null) {
+                try {
+                    c.close();
+                } catch (SQLException e) {
+                }
+            }
+        }
     }
 
     public User findById(String id) throws ClassNotFoundException, SQLException {
         Connection c = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
         User user = null;
 
-        c = connectionMaker.getConnection();
+        try {
+            c = connectionMaker.getConnection();
+            ps = c.prepareStatement("select * from users where id = ?");
+            ps.setString(1, id);
 
-        PreparedStatement ps = c.prepareStatement(
-                "select * from users where id = ?");
-        ps.setString(1, id);
+            rs = ps.executeQuery();
 
-        ResultSet rs = ps.executeQuery();
-        if(rs.next()){
-           user = new User(rs.getString("id"), rs.getString("name"), rs.getString("password"));
+            if (rs.next()) {
+                user = new User(rs.getString("id"), rs.getString("name"), rs.getString("password"));
+            }
+            return user;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                }
+            }
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                }
+            }
+            if (c != null) {
+                try {
+                    c.close();
+                } catch (SQLException e) {
+                }
+            }
         }
-
-        rs.close();
-        ps.close();
-        c.close();
-
-        return user;
     }
 
     public List<User> findAll() {
@@ -73,14 +109,29 @@ public class UserDao {
                         rs.getString("name"), rs.getString("password"));
                 userList.add(user);
             }
-
-            rs.close();
-            statement.close();
-            c.close();
+            return userList;
         } catch (Exception e) {
             throw new RuntimeException(e);
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                }
+            }
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                }
+            }
+            if (c != null) {
+                try {
+                    c.close();
+                } catch (SQLException e) {
+                }
+            }
         }
-        return userList;
     }
 
     public int getCount() throws SQLException, ClassNotFoundException {
@@ -88,24 +139,63 @@ public class UserDao {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
 
-        c = connectionMaker.getConnection();
-        pstmt = c.prepareStatement("select count(*) from users");
-        rs = pstmt.executeQuery();
-        rs.next();
+        try {
+            c = connectionMaker.getConnection();
+            pstmt = c.prepareStatement("select count(*) from users");
+            rs = pstmt.executeQuery();
+            rs.next();
 
-        return rs.getInt(1);
+            return rs.getInt(1);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                }
+            }
+            if (pstmt != null) {
+                try {
+                    pstmt.close();
+                } catch (SQLException e) {
+                }
+            }
+            if (c != null) {
+                try {
+                    c.close();
+                } catch (SQLException e) {
+                }
+            }
+        }
     }
 
     public void deleteAll() throws SQLException, ClassNotFoundException {
         Connection c = null;
         PreparedStatement pstmt = null;
-
-        c = connectionMaker.getConnection();
-        pstmt = c.prepareStatement("delete from users");
-        pstmt.executeUpdate();
-
-        c.close();
-        pstmt.close();
+        try {
+            c = connectionMaker.getConnection();
+            pstmt = c.prepareStatement("delete from users");
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (pstmt != null) {
+                try {
+                    pstmt.close();
+                } catch (SQLException e) {
+                }
+            }
+            if (c != null) {
+                try {
+                    c.close();
+                } catch (SQLException e) {
+                }
+            }
+        }
     }
-
 }
