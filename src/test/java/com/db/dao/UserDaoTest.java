@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.sql.SQLException;
 
@@ -16,9 +17,10 @@ class UserDaoTest {
     private User user1;
     private User user2;
 
+    AnnotationConfigApplicationContext ac = new AnnotationConfigApplicationContext(UserDaoFactory.class);
     @BeforeEach
     void setUp(){
-        userDao = new UserDaoFactory().awsUserDao();
+        userDao = ac.getBean("awsUserDao", UserDao.class);
         user1 = new User("3", "홍길동", "1234");
         user2 = new User("4", "홍길수", "12346");
     }
