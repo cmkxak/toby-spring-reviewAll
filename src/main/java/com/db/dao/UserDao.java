@@ -16,36 +16,16 @@ public class UserDao {
     }
 
     public void add(User user) throws ClassNotFoundException, SQLException {
-        Connection c = null;
-        PreparedStatement ps = null;
-
-        try {
-            c = connectionMaker.getConnection();
-            ps = c.prepareStatement(
-                    "insert into users(id, name, password) values(?, ?, ?)");
-            ps.setString(1, user.getId());
-            ps.setString(2, user.getName());
-            ps.setString(3, user.getPassword());
-
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        } finally {
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                }
+        jdbcContextWithStatementStrategy(new StatementStrategy() {
+            @Override
+            public PreparedStatement makeStatement(Connection c) throws SQLException {
+                PreparedStatement ps = c.prepareStatement("INSERT INTO users vales (?,?,?)");
+                ps.setString(1, user.getId());
+                ps.setString(2, user.getName());
+                ps.setString(3, user.getPassword());
+                return ps;
             }
-            if (c != null) {
-                try {
-                    c.close();
-                } catch (SQLException e) {
-                }
-            }
-        }
+        });
     }
 
     public User findById(String id) throws ClassNotFoundException, SQLException {
@@ -172,12 +152,21 @@ public class UserDao {
         }
     }
 
-    public void deleteAll() throws SQLException, ClassNotFoundException {
+    public void deleteAll(){
+        jdbcContextWithStatementStrategy(new StatementStrategy() {
+            @Override
+            public PreparedStatement makeStatement(Connection c) throws SQLException {
+                return c.prepareStatement("delete from users");
+            }
+        });
+    }
+
+    public void jdbcContextWithStatementStrategy(StatementStrategy statementStrategy){
         Connection c = null;
         PreparedStatement pstmt = null;
         try {
             c = connectionMaker.getConnection();
-            pstmt = c.prepareStatement("delete from users");
+            pstmt = statementStrategy.makeStatement(c);
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
