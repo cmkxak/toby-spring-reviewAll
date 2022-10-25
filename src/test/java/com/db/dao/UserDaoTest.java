@@ -1,8 +1,7 @@
 package com.db.dao;
 
-import com.db.connection.AwsConnectionMaker;
 import com.db.domain.User;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,8 +22,13 @@ class UserDaoTest {
     @BeforeEach
     void setUp() throws SQLException, ClassNotFoundException {
         userDao = ac.getBean("awsUserDao", UserDao.class);
-        user1 = new User("9", "홍길동", "1234");
-        user2 = new User("10", "홍길수", "12346");
+        user1 = new User("16", "홍길동", "1234");
+        user2 = new User("17", "홍길수", "12346");
+    }
+
+    @AfterEach
+    void afterSetUp(){
+        userDao.deleteAll();
     }
 
     @Test
@@ -59,5 +63,14 @@ class UserDaoTest {
         assertThat(2).isEqualTo(userDao.getCount());
     }
 
+    @Test
+    @DisplayName("getAll 테스트")
+    void getAll_test() throws SQLException {
+        userDao.add(user1);
+        userDao.add(user2);
+
+        userDao.getAll();
+        assertThat(2).isEqualTo(userDao.getAll().size());
+    }
 
 }
