@@ -15,11 +15,11 @@ public class UserDao {
         this.connectionMaker = connectionMaker;
     }
 
-    public void add(User user) throws ClassNotFoundException, SQLException {
+    public void add(User user) throws SQLException {
         jdbcContextWithStatementStrategy(new StatementStrategy() {
             @Override
             public PreparedStatement makeStatement(Connection c) throws SQLException {
-                PreparedStatement ps = c.prepareStatement("INSERT INTO users vales (?,?,?)");
+                PreparedStatement ps = c.prepareStatement("INSERT INTO users values (?,?,?)");
                 ps.setString(1, user.getId());
                 ps.setString(2, user.getName());
                 ps.setString(3, user.getPassword());
